@@ -567,6 +567,40 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
   .sidebar .nav{flex-basis:70px;width:70px;min-width:70px}
 }
 
+
+/* ===== FIXED TABLE VIEWPORT + PAGINATION (PMA / SDP / REMINDER / HISTORY) ===== */
+.table-wrap{
+  max-height:540px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#b8c7df #f1f4f9;
+}
+.table-wrap thead th{position:sticky;top:0;z-index:3}
+.pagination{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 2px 2px;margin-top:8px;border-top:1px solid #edf1f7;
+  flex-wrap:wrap;
+}
+.page-info{font-size:11px;color:#78869c}
+.page-info b{color:#344765}
+.page-controls{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.page-btn{
+  min-width:30px;height:30px;padding:0 9px;border:1px solid #e3eaf4;
+  border-radius:7px;background:#fff;color:#52647e;font-size:11px;
+  box-shadow:none;cursor:pointer;
+}
+.page-btn:hover:not(:disabled){background:#edf3ff;color:#285db8;border-color:#cbdaf5}
+.page-btn.active{background:#2457a6;color:#fff;border-color:#2457a6}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+.page-ellipsis{padding:0 4px;color:#91a0b5;font-size:12px}
+@media(max-width:700px){
+ .table-wrap{max-height:58vh;overflow:auto}
+ .pagination{align-items:flex-start;flex-direction:column;gap:9px;padding-top:11px}
+ .page-controls{width:100%;justify-content:flex-start}
+ .page-btn{min-width:32px;height:32px}
+}
+
 </style>
 </head>
 <body>
@@ -615,13 +649,13 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
 
 <section class="page" id="pma"><div class="panel">
  <div class="panel-head"><h3>Outstanding PMA</h3><button class="primary" onclick="go('import')">＋ Import Data</button></div>
- <div class="filters"><input id="searchPma" placeholder="Cari nomor rangka / PO Unnotice / dealer / pemakai..." oninput="render()"><select id="filterPma" onchange="render()"><option value="">Semua status</option><option>Outstanding</option><option>Selesai</option></select></div>
- <div class="table-wrap"><table><thead><tr><th>TANGGAL</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>STATUS</th><th>KETERANGAN</th><th>AKSI</th></tr></thead><tbody id="pmaRows"></tbody></table></div>
+ <div class="filters"><input id="searchPma" placeholder="Cari nomor rangka / PO Unnotice / dealer / pemakai..." oninput="pageState.pma=1;pageState.sdp=1;render()"><select id="filterPma" onchange="pageState.pma=1;pageState.sdp=1;render()"><option value="">Semua status</option><option>Outstanding</option><option>Selesai</option></select></div>
+ <div class="table-wrap"><table><thead><tr><th>TANGGAL</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>STATUS</th><th>KETERANGAN</th><th>AKSI</th></tr></thead><tbody id="pmaRows"></tbody></table></div><div class="pagination" id="pmaPagination"></div>
 </div></section>
 
 <section class="page" id="sdp"><div class="panel"><div class="panel-head"><h3>Outstanding SDP</h3><button class="primary" onclick="go('import')">＋ Import Data</button></div>
-<div class="filters"><input id="searchSdp" placeholder="Cari nomor rangka / PO Unnotice / dealer / pemakai..." oninput="render()"><select id="filterSdp" onchange="render()"><option value="">Semua status</option><option>Outstanding</option><option>Selesai</option></select></div>
-<div class="table-wrap"><table><thead><tr><th>TANGGAL</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>STATUS</th><th>KETERANGAN</th><th>AKSI</th></tr></thead><tbody id="sdpRows"></tbody></table></div></div></section>
+<div class="filters"><input id="searchSdp" placeholder="Cari nomor rangka / PO Unnotice / dealer / pemakai..." oninput="pageState.pma=1;pageState.sdp=1;render()"><select id="filterSdp" onchange="pageState.pma=1;pageState.sdp=1;render()"><option value="">Semua status</option><option>Outstanding</option><option>Selesai</option></select></div>
+<div class="table-wrap"><table><thead><tr><th>TANGGAL</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>STATUS</th><th>KETERANGAN</th><th>AKSI</th></tr></thead><tbody id="sdpRows"></tbody></table></div><div class="pagination" id="sdpPagination"></div></div></section>
 
 <section class="page" id="import"><div class="panel"><h3>Import Data Pengajuan</h3><p class="sub">Pilih file CSV dengan format kolom sesuai template PMA atau SDP. CSV dipisahkan tanda titik koma (;) seperti file sumber.</p>
 <div class="notice">Prototype: import CSV berjalan di browser. Data hanya tersimpan sementara pada sesi ini, belum masuk database online.</div>
@@ -643,9 +677,9 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
   </div>
   <div class="notice">Reminder hanya menampilkan pengajuan berstatus <b>Outstanding</b>. Saat status diubah menjadi <b>Selesai</b>, data dipindahkan dari daftar aktif ke menu <b>Riwayat Selesai</b> dan disimpan di browser. Pengajuan dengan tanggal sebelum hari ini ditandai terlambat, tanggal hari ini jatuh tempo hari ini, dan tanggal setelah hari ini belum jatuh tempo.</div>
   <div class="reminder-toolbar">
-   <input id="reminderSearch" placeholder="Cari no. rangka, PO Unnotice, dealer, Samsat, atau pemakai..." oninput="renderReminder()">
-   <select id="reminderType" onchange="renderReminder()"><option value="">Semua jenis</option><option value="pma">PMA</option><option value="sdp">SDP</option></select>
-   <select id="reminderStatus" onchange="renderReminder()"><option value="">Semua kondisi</option><option value="overdue">Terlambat</option><option value="due">Jatuh tempo hari ini</option><option value="upcoming">Belum jatuh tempo</option></select>
+   <input id="reminderSearch" placeholder="Cari no. rangka, PO Unnotice, dealer, Samsat, atau pemakai..." oninput="pageState.reminder=1;renderReminder()">
+   <select id="reminderType" onchange="pageState.reminder=1;renderReminder()"><option value="">Semua jenis</option><option value="pma">PMA</option><option value="sdp">SDP</option></select>
+   <select id="reminderStatus" onchange="pageState.reminder=1;renderReminder()"><option value="">Semua kondisi</option><option value="overdue">Terlambat</option><option value="due">Jatuh tempo hari ini</option><option value="upcoming">Belum jatuh tempo</option></select>
   </div>
   <div class="table-wrap">
    <table class="reminder-table">
@@ -653,14 +687,15 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
     <tbody id="reminderList"></tbody>
    </table>
   </div>
+  <div class="pagination" id="reminderPagination"></div>
  </div>
 </section>
 
 <section class="page" id="history">
  <div class="panel">
   <div class="panel-head"><div><h3>Riwayat Pengajuan Selesai</h3><div class="sub" style="margin-top:6px">Data yang sudah diselesaikan tersimpan di sini dan tidak lagi muncul di daftar Outstanding.</div></div><span class="status done" id="historyCount">0 DATA</span></div>
-  <div class="filters"><input id="historySearch" placeholder="Cari no. rangka, PO Unnotice, dealer, nama STNK, atau pemakai..." oninput="renderHistory()"><select id="historyType" onchange="renderHistory()"><option value="">Semua jenis</option><option value="PMA">PMA</option><option value="SDP">SDP</option></select></div>
-  <div class="table-wrap"><table><thead><tr><th>JENIS</th><th>TANGGAL PENGAJUAN</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO. RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>KETERANGAN</th><th>SELESAI PADA</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+  <div class="filters"><input id="historySearch" placeholder="Cari no. rangka, PO Unnotice, dealer, nama STNK, atau pemakai..." oninput="pageState.history=1;renderHistory()"><select id="historyType" onchange="pageState.history=1;renderHistory()"><option value="">Semua jenis</option><option value="PMA">PMA</option><option value="SDP">SDP</option></select></div>
+  <div class="table-wrap"><table><thead><tr><th>JENIS</th><th>TANGGAL PENGAJUAN</th><th>KODE DEALER</th><th>KODE SAMSAT</th><th>NO. RANGKA</th><th>NAMA STNK</th><th>NO. PO UNNOTICE</th><th>PEMAKAI</th><th>KETERANGAN</th><th>SELESAI PADA</th></tr></thead><tbody id="historyRows"></tbody></table></div><div class="pagination" id="historyPagination"></div>
  </div>
 </section>
 
@@ -889,12 +924,43 @@ function go(id){
 }
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>go(b.dataset.page));
 function statusTag(s){return `<span class="status ${s==="Selesai"?"done":"pending"}">${s}</span>`}
-function tableRows(type){
+const PAGE_SIZE=10;
+const pageState={pma:1,sdp:1,reminder:1,history:1};
+function paginate(items,key){
+ const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE));
+ pageState[key]=Math.min(Math.max(1,pageState[key]||1),pages);
+ const start=(pageState[key]-1)*PAGE_SIZE;
+ return {rows:items.slice(start,start+PAGE_SIZE),total:items.length,pages,start:start+1,end:Math.min(start+PAGE_SIZE,items.length)};
+}
+function drawPagination(id,key,total,callback){
+ const el=document.getElementById(id);if(!el)return;
+ const pages=Math.max(1,Math.ceil(total/PAGE_SIZE)),page=Math.min(pageState[key]||1,pages);
+ const start=total?(page-1)*PAGE_SIZE+1:0,end=Math.min(page*PAGE_SIZE,total);
+ const btn=(label,target,disabled=false,active=false)=>{
+  const action=callback==="setTablePage"?`setTablePage('${key}',${target})`:`${callback}(${target})`;
+  return `<button type="button" class="page-btn ${active?"active":""}" ${disabled?"disabled":""} onclick="${action}">${label}</button>`;
+ };
+ let controls="";
+ controls+=btn("‹",page-1,page<=1);
+ let nums=[];
+ if(pages<=5){for(let n=1;n<=pages;n++)nums.push(n)}
+ else{nums=[1];if(page>3)nums.push("…");for(let n=Math.max(2,page-1);n<=Math.min(pages-1,page+1);n++)nums.push(n);if(page<pages-2)nums.push("…");nums.push(pages)}
+ nums.forEach(n=>{controls+=n==="…"?'<span class="page-ellipsis">…</span>':btn(n,n,false,n===page)});
+ controls+=btn("›",page+1,page>=pages);
+ el.innerHTML=`<div class="page-info">Menampilkan <b>${start}–${end}</b> dari <b>${total.toLocaleString("id-ID")}</b> data</div><div class="page-controls">${controls}</div>`;
+}
+function setTablePage(key,page){pageState[key]=page;render()}
+function setReminderPage(page){pageState.reminder=page;renderReminder()}
+function setHistoryPage(page){pageState.history=page;renderHistory()}
+function filteredTableRows(type){
  let q=(document.getElementById(type==="pma"?"searchPma":"searchSdp")?.value||"").toLowerCase();
  let f=document.getElementById(type==="pma"?"filterPma":"filterSdp")?.value||"";
- return visibleRows(type).filter(r=>(!f||r.status===f)&&Object.values(r).join(" ").toLowerCase().includes(q))
- .map(r=>`<tr class="stnk-row"><td data-label="Tanggal">${esc(r.tanggal)}</td><td data-label="Kode Dealer">${esc(r.dealer)}</td><td data-label="Kode Samsat">${esc(r.samsat)}</td><td data-label="No. Rangka"><strong>${esc(r.rangka)}</strong></td><td data-label="Nama STNK">${esc(r.namaStnk||"-")}</td><td data-label="No. PO Unnotice">${esc(r.po||"-")}</td><td data-label="Pemakai">${esc(r.pemakai)}</td><td data-label="Status">${statusTag(r.status)}</td><td data-label="Keterangan">${esc(r.note||"-")}</td><td data-label="Aksi"><button class="secondary" onclick="edit('${type}',${r.i})">Edit</button></td></tr>`)
- .join("")||'<tr><td colspan="10">Tidak ada data ditemukan</td></tr>';
+ return visibleRows(type).filter(r=>(!f||r.status===f)&&Object.values(r).join(" ").toLowerCase().includes(q));
+}
+function tableRows(type){
+ const filtered=filteredTableRows(type),pg=paginate(filtered,type);
+ drawPagination(type+"Pagination",type,pg.total,"setTablePage");
+ return pg.rows.map(r=>`<tr class="stnk-row"><td data-label="Tanggal">${esc(r.tanggal)}</td><td data-label="Kode Dealer">${esc(r.dealer)}</td><td data-label="Kode Samsat">${esc(r.samsat)}</td><td data-label="No. Rangka"><strong>${esc(r.rangka)}</strong></td><td data-label="Nama STNK">${esc(r.namaStnk||"-")}</td><td data-label="No. PO Unnotice">${esc(r.po||"-")}</td><td data-label="Pemakai">${esc(r.pemakai)}</td><td data-label="Status">${statusTag(r.status)}</td><td data-label="Keterangan">${esc(r.note||"-")}</td><td data-label="Aksi"><button class="secondary" onclick="edit('${type}',${r.i})">Edit</button></td></tr>`).join("")||'<tr><td colspan="10">Tidak ada data ditemukan</td></tr>';
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function dateKey(v){
@@ -944,6 +1010,7 @@ function renderDashboardCharts(all,out,todayStr){
 }
 function render(){
  document.getElementById("pmaRows").innerHTML=isSdpOnlyUser()?'<tr><td colspan="10">Tidak ada akses ke data PMA</td></tr>':tableRows("pma");
+ if(isSdpOnlyUser())drawPagination("pmaPagination","pma",0,"setTablePage");
  document.getElementById("sdpRows").innerHTML=tableRows("sdp");
  let all=[...(isSdpOnlyUser()?[]:visibleRows("pma")),...visibleRows("sdp")],out=all.filter(x=>x.status!=="Selesai");
  document.getElementById("total").textContent=out.length;
@@ -968,7 +1035,10 @@ function renderReminder(){
  const q=(document.getElementById("reminderSearch")?.value||"").toLowerCase().trim(),type=document.getElementById("reminderType")?.value||"",state=document.getElementById("reminderStatus")?.value||"";
  const labels={overdue:"Terlambat",due:"Jatuh tempo hari ini",upcoming:"Belum jatuh tempo"};
  const filtered=items.filter(r=>(!type||r.jenis.toLowerCase()===type)&&(!state||r.kondisi===state)&&(!q||[r.rangka,r.po,r.dealer,r.samsat,r.pemakai,r.namaStnk,r.note,r.jenis].join(" ").toLowerCase().includes(q)));
- document.getElementById("reminderList").innerHTML=filtered.length?filtered.sort((a,b)=>(a.dateKey||"9999").localeCompare(b.dateKey||"9999")).map(r=>`<tr><td><span class="reminder-type">${r.jenis}</span></td><td>${esc(r.tanggal||"-")}</td><td>${esc(r.dealer||"-")}</td><td>${esc(r.samsat||"-")}</td><td><b>${esc(r.rangka||"-")}</b></td><td>${esc(r.namaStnk||"-")}</td><td>${esc(r.po||"-")}</td><td>${esc(r.pemakai||"-")}</td><td>${esc(r.note||"-")}</td><td><span class="reminder-state ${r.kondisi}">${labels[r.kondisi]}</span></td></tr>`).join(""):`<tr><td colspan="10" class="reminder-empty">Tidak ada pengajuan yang sesuai dengan filter reminder.</td></tr>`;
+ const sorted=filtered.sort((a,b)=>(a.dateKey||"9999").localeCompare(b.dateKey||"9999"));
+ const pg=paginate(sorted,"reminder");
+ document.getElementById("reminderList").innerHTML=pg.rows.length?pg.rows.map(r=>`<tr><td><span class="reminder-type">${r.jenis}</span></td><td>${esc(r.tanggal||"-")}</td><td>${esc(r.dealer||"-")}</td><td>${esc(r.samsat||"-")}</td><td><b>${esc(r.rangka||"-")}</b></td><td>${esc(r.namaStnk||"-")}</td><td>${esc(r.po||"-")}</td><td>${esc(r.pemakai||"-")}</td><td>${esc(r.note||"-")}</td><td><span class="reminder-state ${r.kondisi}">${labels[r.kondisi]}</span></td></tr>`).join(""):`<tr><td colspan="10" class="reminder-empty">Tidak ada pengajuan yang sesuai dengan filter reminder.</td></tr>`;
+ drawPagination("reminderPagination","reminder",pg.total,"setReminderPage");
 }
 function renderHistory(){
  const isWide=isSuperAdminUser();
@@ -979,7 +1049,9 @@ function renderHistory(){
  const sdpOnly=isSdpOnlyUser();
  const rows=completedHistory.filter(r=>(isWide||(r.pemakai||"").trim().toLowerCase()===userKey)&&(!pmaOnly||r.jenis==="PMA")&&(!sdpOnly||r.jenis==="SDP")&&(!type||r.jenis===type)&&(!q||[r.rangka,r.po,r.dealer,r.samsat,r.pemakai,r.namaStnk,r.note,r.jenis,r.tanggal].join(" ").toLowerCase().includes(q)));
  document.getElementById("historyCount").textContent=rows.length+" DATA";
- document.getElementById("historyRows").innerHTML=rows.length?rows.map(r=>`<tr><td><span class="reminder-type">${esc(r.jenis||"-")}</span></td><td>${esc(r.tanggal||"-")}</td><td>${esc(r.dealer||"-")}</td><td>${esc(r.samsat||"-")}</td><td><b>${esc(r.rangka||"-")}</b></td><td>${esc(r.namaStnk||"-")}</td><td>${esc(r.po||"-")}</td><td>${esc(r.pemakai||"-")}</td><td>${esc(r.note||"-")}</td><td>${esc(r.completedAt||"-")}</td></tr>`).join(""):'<tr><td colspan="10" class="reminder-empty">Belum ada riwayat pengajuan selesai yang sesuai.</td></tr>';
+ const pg=paginate(rows,"history");
+ document.getElementById("historyRows").innerHTML=pg.rows.length?pg.rows.map(r=>`<tr><td><span class="reminder-type">${esc(r.jenis||"-")}</span></td><td>${esc(r.tanggal||"-")}</td><td>${esc(r.dealer||"-")}</td><td>${esc(r.samsat||"-")}</td><td><b>${esc(r.rangka||"-")}</b></td><td>${esc(r.namaStnk||"-")}</td><td>${esc(r.po||"-")}</td><td>${esc(r.pemakai||"-")}</td><td>${esc(r.note||"-")}</td><td>${esc(r.completedAt||"-")}</td></tr>`).join(""):'<tr><td colspan="10" class="reminder-empty">Belum ada riwayat pengajuan selesai yang sesuai.</td></tr>';
+ drawPagination("historyPagination","history",pg.total,"setHistoryPage");
 }
 function edit(t,i){if(isSdpOnlyUser()&&t==="pma"){toast("Akses data PMA tidak tersedia untuk akun ini");return}if(isPmaOnlyUser()&&t==="sdp"){toast("Akses data SDP tidak tersedia untuk akun ini");return}if(!isSuperAdminUser()&&String(data[t][i].pemakai||"").trim().toLowerCase()!==String(currentUser?.username||"").toLowerCase()){toast("Tidak memiliki akses");return}editRef={t,i};let r=data[t][i];document.getElementById("editNote").value=r.note||"";document.getElementById("editStatus").value=r.status;document.getElementById("editModal").classList.add("show")}
 function closeModal(){document.getElementById("editModal").classList.remove("show")}
