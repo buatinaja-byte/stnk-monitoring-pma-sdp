@@ -393,6 +393,36 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
  .donut-hole{width:96px;height:96px}
 }
 
+
+/* ===== MOBILE LOGIN LAYER FIX ===== */
+/* Login screen must sit above the fixed mobile bottom navigation. */
+.login-screen{
+  z-index:2000 !important;
+}
+@media(max-width:700px){
+  .login-screen{
+    position:fixed;
+    inset:0;
+    min-height:100dvh;
+    padding:22px 18px calc(22px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    align-items:center;
+    justify-content:center;
+  }
+  .login-box{
+    width:100%;
+    max-width:430px;
+    margin:auto;
+    padding:27px 22px;
+    border-radius:23px;
+  }
+  .login-box h2{font-size:25px}
+  .login-box p{font-size:14px;line-height:1.45}
+  .login-box label{font-size:14px}
+  .login-box input{min-height:52px;font-size:16px}
+  .login-box button{min-height:52px;font-size:15px}
+}
+
 </style>
 </head>
 <body>
