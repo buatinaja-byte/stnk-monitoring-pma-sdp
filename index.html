@@ -528,6 +528,45 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
   .sidebar .nav{flex-basis:70px;width:70px;min-width:70px}
 }
 
+
+/* ===== MOBILE BOTTOM NAV LABEL ALIGNMENT FIX ===== */
+@media(max-width:700px){
+  .sidebar .nav{
+    box-sizing:border-box;
+    flex:0 0 76px;
+    width:76px;
+    min-width:76px;
+    padding:6px 4px 5px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .sidebar .nav-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    min-height:22px;
+    margin:0 auto;
+    padding:0;
+    text-align:center;
+    line-height:1.15;
+    white-space:normal;
+    overflow-wrap:normal;
+    word-break:normal;
+    hyphens:none;
+  }
+  .sidebar .nav-icon{
+    margin:0 auto;
+    align-self:center;
+  }
+}
+@media(max-width:380px){
+  .sidebar .nav{flex-basis:70px;width:70px;min-width:70px}
+}
+
 </style>
 </head>
 <body>
