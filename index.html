@@ -601,6 +601,64 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
  .page-btn{min-width:32px;height:32px}
 }
 
+
+/* ===== MOBILE PAGINATION FLOW FIX ===== */
+/* On phone, PMA/SDP records are stacked cards. Let all 10 cards occupy
+   their natural height so the pagination footer follows the last card,
+   instead of overlapping the cards inside a clipped table viewport. */
+@media(max-width:700px){
+  #pma .table-wrap,
+  #sdp .table-wrap{
+    height:auto !important;
+    max-height:none !important;
+    min-height:0 !important;
+    overflow:visible !important;
+    contain:none !important;
+  }
+  #pma .table-wrap table,
+  #sdp .table-wrap table{
+    display:block;
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  #pma .table-wrap tbody,
+  #sdp .table-wrap tbody{
+    display:grid;
+    gap:11px;
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  #pma .pagination,
+  #sdp .pagination{
+    position:relative !important;
+    z-index:1;
+    clear:both;
+    margin-top:14px;
+    padding:13px 2px 4px;
+    background:transparent;
+  }
+  #pma .page-controls,
+  #sdp .page-controls{
+    display:flex;
+    flex-wrap:nowrap;
+    align-items:center;
+    gap:6px;
+    max-width:100%;
+    overflow-x:auto;
+    padding:2px 1px 5px;
+    scrollbar-width:thin;
+  }
+  #pma .page-btn,
+  #sdp .page-btn{
+    flex:0 0 auto;
+    min-width:38px;
+    height:38px;
+    font-size:12px;
+  }
+}
+
 </style>
 </head>
 <body>
