@@ -659,6 +659,36 @@ td strong{color:#20365c;font-weight:750;letter-spacing:.2px}
   }
 }
 
+
+/* ===== DESKTOP SIDEBAR STAYS VISIBLE WHILE PAGE SCROLLS ===== */
+@media(min-width:701px){
+  .layout{
+    display:block !important;
+    min-height:100vh;
+  }
+  .sidebar{
+    position:fixed !important;
+    top:0;
+    left:0;
+    bottom:0;
+    width:245px;
+    height:100vh;
+    box-sizing:border-box;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    z-index:100;
+    scrollbar-width:thin;
+    scrollbar-color:#526987 #102f58;
+  }
+  .main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    min-width:0;
+    box-sizing:border-box;
+  }
+}
+
 </style>
 </head>
 <body>
